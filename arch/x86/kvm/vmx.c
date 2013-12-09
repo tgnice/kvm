@@ -8622,6 +8622,8 @@ static int __init vmx_init(void)
 
 	r = kvm_init(&vmx_x86_ops, sizeof(struct vcpu_vmx),
 		     __alignof__(struct vcpu_vmx), THIS_MODULE);
+	/* int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,struct module *module) is an external symbol in /virt/kvm/kvm-main.c
+		 * */
 	if (r)
 		goto out7;
 
