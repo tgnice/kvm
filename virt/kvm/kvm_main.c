@@ -3146,12 +3146,12 @@ static void kvm_sched_out(struct preempt_notifier *pn,
 }
 
 int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
-		  struct module *module)
+		  struct module *module) // initialization for KVM kernel
 {
 	int r;
 	int cpu;
 
-	r = kvm_arch_init(opaque);
+	r = kvm_arch_init(opaque); // architecture operation initialization
 	if (r)
 		goto out_fail;
 
@@ -3162,7 +3162,7 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
 	 * kvm_arch_init must be called before kvm_irqfd_init to avoid creating
 	 * conflicts in case kvm is already setup for another implementation.
 	 */
-	r = kvm_irqfd_init();
+	r = kvm_irqfd_init(); // interrupt request initialization, but nothing to do with this. i have no idea why doing nothing.
 	if (r)
 		goto out_irqfd;
 
@@ -3171,7 +3171,7 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
 		goto out_free_0;
 	}
 
-	r = kvm_arch_hardware_setup();
+	r = kvm_arch_hardware_setup(); // hardware setup for specific architecture.
 	if (r < 0)
 		goto out_free_0a;
 
@@ -3183,10 +3183,13 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
 			goto out_free_1;
 	}
 
-	r = register_cpu_notifier(&kvm_cpu_notifier);
+	r = register_cpu_notifier(&kvm_cpu_notifier); /*
+	 	 	 	 	 	 	 	 	 	 	 	 [kvm_notifier_block] kvm_cpu_notifier is already initialized as a static value at 3026 line of this file
+	 	 	 	 	 	 	 	 	 	 	 	 but doing nothing in this function register_cpu_notifier
+	 	 	 	 	 	 	 	 	 	 	 	 	*/
 	if (r)
 		goto out_free_2;
-	register_reboot_notifier(&kvm_reboot_notifier);
+	register_reboot_notifier(&kvm_reboot_notifier); // [kvm_notifier_block] this variable is also already initialized
 
 	/* A kmem cache lets us meet the alignment requirements of fx_save. */
 	if (!vcpu_align)

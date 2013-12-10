@@ -8551,24 +8551,24 @@ static struct kvm_x86_ops vmx_x86_ops = {
 	.handle_external_intr = vmx_handle_external_intr,
 };
 
-static int __init vmx_init(void)
+static int __init vmx_init(void) // module start for INTEL VT-x
 {
 	int r, i, msr;
 
-	rdmsrl_safe(MSR_EFER, &host_efer);
+	rdmsrl_safe(MSR_EFER, &host_efer); // read msr safe. MSR means Model Specific Register.
 
 	for (i = 0; i < NR_VMX_MSR; ++i)
 		kvm_define_shared_msr(i, vmx_msr_index[i]);
 
-	vmx_io_bitmap_a = (unsigned long *)__get_free_page(GFP_KERNEL);
-	if (!vmx_io_bitmap_a)
+	vmx_io_bitmap_a = (unsigned long *)__get_free_page(GFP_KERNEL); // get kernel page to map vmx IO
+	if (!vmx_io_bitmap_a) // if cant get kernel page to map vmx IO , return an error.
 		return -ENOMEM;
 
 	r = -ENOMEM;
 
-	vmx_io_bitmap_b = (unsigned long *)__get_free_page(GFP_KERNEL);
+	vmx_io_bitmap_b = (unsigned long *)__get_free_page(GFP_KERNEL); // get kernel page to map vmx IO
 	if (!vmx_io_bitmap_b)
-		goto out;
+		goto out; // in order to free kernal map pages in resverse order.
 
 	vmx_msr_bitmap_legacy = (unsigned long *)__get_free_page(GFP_KERNEL);
 	if (!vmx_msr_bitmap_legacy)
@@ -8594,6 +8594,8 @@ static int __init vmx_init(void)
 	vmx_vmwrite_bitmap = (unsigned long *)__get_free_page(GFP_KERNEL);
 	if (!vmx_vmwrite_bitmap)
 		goto out6;
+
+	// to this, assign kernel memory map for IO , MSR , VMRead/Write bitmap.
 
 	memset(vmx_vmread_bitmap, 0xff, PAGE_SIZE);
 	memset(vmx_vmwrite_bitmap, 0xff, PAGE_SIZE);
@@ -8623,6 +8625,7 @@ static int __init vmx_init(void)
 	r = kvm_init(&vmx_x86_ops, sizeof(struct vcpu_vmx),
 		     __alignof__(struct vcpu_vmx), THIS_MODULE);
 	/* int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,struct module *module) is an external symbol in /virt/kvm/kvm-main.c
+	 * KVM Kernel Initialize.
 		 * */
 	if (r)
 		goto out7;

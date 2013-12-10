@@ -846,7 +846,7 @@ static void svm_disable_lbrv(struct vcpu_svm *svm)
 	set_msr_interception(msrpm, MSR_IA32_LASTINTTOIP, 0, 0);
 }
 
-static __init int svm_hardware_setup(void)
+static __init int svm_hardware_setup(void) // this is for x86_ops->hardware_setup();
 {
 	int cpu;
 	struct page *iopm_pages;
@@ -4249,7 +4249,7 @@ static void svm_handle_external_intr(struct kvm_vcpu *vcpu)
 	local_irq_enable();
 }
 
-static struct kvm_x86_ops svm_x86_ops = { // initialize x86 operations for AMD CPU Virtualization
+static struct kvm_x86_ops svm_x86_ops = { // initialize x86 operations for AMD CPU Virtualization , we can see what sort of operations we need to implement VM
 	.cpu_has_kvm_support = has_svm,
 	.disabled_by_bios = is_disabled,
 	.hardware_setup = svm_hardware_setup,
@@ -4348,11 +4348,12 @@ static struct kvm_x86_ops svm_x86_ops = { // initialize x86 operations for AMD C
 	.handle_external_intr = svm_handle_external_intr,
 };
 
-static int __init svm_init(void) // Start Kvm-amd module.
+static int __init svm_init(void) // Start KVM-amd module.
 {
 	return kvm_init(&svm_x86_ops, sizeof(struct vcpu_svm),
 			__alignof__(struct vcpu_svm), THIS_MODULE);
 	/* int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,struct module *module) is an external symbol in /virt/kvm/kvm-main.c
+	 * * KVM Kernel Initialize.
 	 * */
 }
 

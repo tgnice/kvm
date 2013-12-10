@@ -6887,7 +6887,7 @@ void kvm_arch_hardware_disable(void *garbage)
 
 int kvm_arch_hardware_setup(void)
 {
-	return kvm_x86_ops->hardware_setup();
+	return kvm_x86_ops->hardware_setup(); // already initialized in kvm_init, kvm_arch_init(opaque), hardware_setup was set up in svm.c or vmx.c
 }
 
 void kvm_arch_hardware_unsetup(void)
