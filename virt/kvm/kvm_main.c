@@ -3146,7 +3146,7 @@ static void kvm_sched_out(struct preempt_notifier *pn,
 }
 
 int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
-		  struct module *module) // initialization for KVM kernel
+		  struct module *module) // general function for initialization for KVM kernel
 {
 	int r;
 	int cpu;
@@ -3166,10 +3166,10 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
 	if (r)
 		goto out_irqfd;
 
-	if (!zalloc_cpumask_var(&cpus_hardware_enabled, GFP_KERNEL)) {
-		r = -ENOMEM;
-		goto out_free_0;
-	}
+	if (!zalloc_cpumask_var(&cpus_hardware_enabled, GFP_KERNEL)) { // first argument type is "struct cpumask { DECLARE_BITMAP(bits, NR_CPUS); } cpumask_t;", second argument is nothing to do whi zalloc_cpuamsk_var function.
+		r = -ENOMEM;											// zalloc_cpu_amsk_var -> cpumaks_clear -> bitmap_zero(cpumask_bits(dstp), nr_cpumask_bits); -> bitmap_zero
+		goto out_free_0;										// nr_cpumask_bits is "1"  cpuamsk_bits(dstp) is macro to assign bits field of cpumask structure.(cpumask_bits(maskp) ((maskp)->bits))
+	}															/*this part just makes cpus_hardware_enabled variable initialized*/
 
 	r = kvm_arch_hardware_setup(); // hardware setup for specific architecture.
 	if (r < 0)
@@ -3183,11 +3183,8 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
 			goto out_free_1;
 	}
 
-	r = register_cpu_notifier(&kvm_cpu_notifier); /*
-	 	 	 	 	 	 	 	 	 	 	 	 [kvm_notifier_block] kvm_cpu_notifier is already initialized as a static value at 3026 line of this file
-	 	 	 	 	 	 	 	 	 	 	 	 but doing nothing in this function register_cpu_notifier
-	 	 	 	 	 	 	 	 	 	 	 	 	*/
-	if (r)
+	r = register_cpu_notifier(&kvm_cpu_notifier); /* [kvm_notifier_block] kvm_cpu_notifier is already initialized as a static value 	 	 	 	 	 	 	 	 	 	 	 	 	*/
+	if (r)											// at 3026 line of this file but doing nothing in this function register_cpu_notifier
 		goto out_free_2;
 	register_reboot_notifier(&kvm_reboot_notifier); // [kvm_notifier_block] this variable is also already initialized
 
@@ -3195,38 +3192,38 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
 	if (!vcpu_align)
 		vcpu_align = __alignof__(struct kvm_vcpu);
 	kvm_vcpu_cache = kmem_cache_create("kvm_vcpu", vcpu_size, vcpu_align,
-					   0, NULL);
+					   0, NULL); // create kernel cache for kvm vcpu
 	if (!kvm_vcpu_cache) {
 		r = -ENOMEM;
 		goto out_free_3;
 	}
 
-	r = kvm_async_pf_init();
+	r = kvm_async_pf_init(); // always return zero
 	if (r)
 		goto out_free;
 
-	kvm_chardev_ops.owner = module;
-	kvm_vm_fops.owner = module;
-	kvm_vcpu_fops.owner = module;
+	kvm_chardev_ops.owner = module; // kvm character device operation structure
+	kvm_vm_fops.owner = module; // kvm-vm file operation structure for vm with anonymous inode , this operation will be used when guest vm is launched
+	kvm_vcpu_fops.owner = module; // kvm-vcpu file operation structure with anonymous inode
 
-	r = misc_register(&kvm_dev);
+	r = misc_register(&kvm_dev); // register misc device to /dev/kvm, we can communicate with kvm kernel through this device file
 	if (r) {
 		printk(KERN_ERR "kvm: misc device register failed\n");
 		goto out_unreg;
 	}
 
-	register_syscore_ops(&kvm_syscore_ops);
+	register_syscore_ops(&kvm_syscore_ops); // register vm resume and suspend
 
-	kvm_preempt_ops.sched_in = kvm_sched_in;
-	kvm_preempt_ops.sched_out = kvm_sched_out;
+	kvm_preempt_ops.sched_in = kvm_sched_in; // scheduler init.
+	kvm_preempt_ops.sched_out = kvm_sched_out; // scheduler init.
 
-	r = kvm_init_debug();
+	r = kvm_init_debug(); // initialize debug
 	if (r) {
 		printk(KERN_ERR "kvm: create debugfs files failed\n");
 		goto out_undebugfs;
 	}
 
-	return 0;
+	return 0; // end of this initialization function
 
 out_undebugfs:
 	unregister_syscore_ops(&kvm_syscore_ops);
