@@ -3126,13 +3126,13 @@ struct kvm_vcpu *preempt_notifier_to_vcpu(struct preempt_notifier *pn)
 	return container_of(pn, struct kvm_vcpu, preempt_notifier);
 }
 
-static void kvm_sched_in(struct preempt_notifier *pn, int cpu)
+static void kvm_sched_in(struct preempt_notifier *pn, int cpu) // initialized in kvm_init
 {
 	struct kvm_vcpu *vcpu = preempt_notifier_to_vcpu(pn);
 	if (vcpu->preempted)
 		vcpu->preempted = false;
 
-	kvm_arch_vcpu_load(vcpu, cpu);
+	kvm_arch_vcpu_load(vcpu, cpu); // this function is architecture oriented function. in this function, function array based on architecture will be called, so functions are defined separately in different file.
 }
 
 static void kvm_sched_out(struct preempt_notifier *pn,

@@ -164,7 +164,7 @@ static DEFINE_PER_CPU(u64, current_tsc_ratio);
 
 #define MSR_INVALID			0xffffffffU
 
-static const struct svm_direct_access_msrs {
+static const struct svm_direct_access_msrs { // msr means machine specific register's'
 	u32 index;   /* Index of the MSR */
 	bool always; /* True if intercept is always on */
 } direct_access_msrs[] = {
@@ -210,7 +210,7 @@ static int nested_svm_check_exception(struct vcpu_svm *svm, unsigned nr,
 				      bool has_error_code, u32 error_code);
 static u64 __scale_tsc(u64 ratio, u64 tsc);
 
-enum {
+enum { // VMCB is Virtual machine Control Block
 	VMCB_INTERCEPTS, /* Intercept vectors, TSC offset,
 			    pause filter count */
 	VMCB_PERM_MAP,   /* IOPM Base and MSRPM Base */
@@ -846,14 +846,14 @@ static void svm_disable_lbrv(struct vcpu_svm *svm)
 	set_msr_interception(msrpm, MSR_IA32_LASTINTTOIP, 0, 0);
 }
 
-static __init int svm_hardware_setup(void) // this is for x86_ops->hardware_setup();
+static __init int svm_hardware_setup(void) // this is for x86_ops->hardware_setup(); , this function will be called once at the kvm_init function.
 {
 	int cpu;
 	struct page *iopm_pages;
 	void *iopm_va;
 	int r;
 
-	iopm_pages = alloc_pages(GFP_KERNEL, IOPM_ALLOC_ORDER);
+	iopm_pages = alloc_pages(GFP_KERNEL, IOPM_ALLOC_ORDER); // iomap memory page allocation
 
 	if (!iopm_pages)
 		return -ENOMEM;
@@ -3443,7 +3443,7 @@ static int handle_exit(struct kvm_vcpu *vcpu)
 		return 1;
 	}
 
-	if (is_guest_mode(vcpu)) {
+	if (is_guest_mode(vcpu)) { // nested vm handle . because this function is exit handler, so if is_guest_mode(vcpu) returns true, that would be nested vm.
 		int vmexit;
 
 		trace_kvm_nested_vmexit(svm->vmcb->save.rip, exit_code,
@@ -4071,7 +4071,7 @@ static void svm_fpu_deactivate(struct kvm_vcpu *vcpu)
 #define POST_MEM(exit) { .exit_code = (exit), \
 			.stage = X86_ICPT_POST_MEMACCESS, }
 
-static const struct __x86_intercept {
+static const struct __x86_intercept { // initializing instructions kvm need to intercept
 	u32 exit_code;
 	enum x86_intercept_stage stage;
 } x86_intercept_map[] = {
