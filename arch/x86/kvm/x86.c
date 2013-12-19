@@ -4452,7 +4452,7 @@ static int emulator_pio_out_emulated(struct x86_emulate_ctxt *ctxt,
 {
 	struct kvm_vcpu *vcpu = emul_to_vcpu(ctxt);
 
-	memcpy(vcpu->arch.pio_data, val, size * count);
+	memcpy(vcpu->arch.pio_data, val, size * count); // data copy to vcpu programmed IO data.
 	return emulator_pio_in_out(vcpu, size, port, (void *)val, count, false);
 }
 
@@ -5202,7 +5202,7 @@ EXPORT_SYMBOL_GPL(x86_emulate_instruction);
 
 int kvm_fast_pio_out(struct kvm_vcpu *vcpu, int size, unsigned short port)
 {
-	unsigned long val = kvm_register_read(vcpu, VCPU_REGS_RAX);
+	unsigned long val = kvm_register_read(vcpu, VCPU_REGS_RAX); // read RAX Register
 	int ret = emulator_pio_out_emulated(&vcpu->arch.emulate_ctxt,
 					    size, port, &val, 1);
 	/* do not return to emulator after return from userspace */
