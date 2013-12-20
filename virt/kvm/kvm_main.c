@@ -1961,8 +1961,8 @@ static int kvm_vcpu_ioctl_set_sigmask(struct kvm_vcpu *vcpu, sigset_t *sigset)
 }
 
 static long kvm_vcpu_ioctl(struct file *filp,
-			   unsigned int ioctl, unsigned long arg)
-{
+			   unsigned int ioctl, unsigned long arg) // this function is for kvm-vcpu's ioctl initialized in kvm_vcpu_fops structure.
+{														// for running , getting register status .. this is not an vmcb or vmcs, just emulated cpu
 	struct kvm_vcpu *vcpu = filp->private_data;
 	void __user *argp = (void __user *)arg;
 	int r;
