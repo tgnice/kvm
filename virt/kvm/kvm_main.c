@@ -2588,7 +2588,7 @@ static long kvm_dev_ioctl_check_extension_generic(long arg)
 }
 
 static long kvm_dev_ioctl(struct file *filp,
-			  unsigned int ioctl, unsigned long arg)
+			  unsigned int ioctl, unsigned long arg) // this ioctl function handle querying 1) API_VERSION 2) CREATE_VM 3) CHECK_EXTENTION 4) GET_VCPU_MMAP_SIZE
 {
 	long r = -EINVAL;
 
@@ -2623,7 +2623,7 @@ static long kvm_dev_ioctl(struct file *filp,
 		r = -EOPNOTSUPP;
 		break;
 	default:
-		return kvm_arch_dev_ioctl(filp, ioctl, arg);
+		return kvm_arch_dev_ioctl(filp, ioctl, arg); // to handle other architecture based instructions
 	}
 out:
 	return r;
