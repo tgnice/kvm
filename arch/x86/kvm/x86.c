@@ -5989,7 +5989,7 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
 	if (req_immediate_exit)
 		smp_send_reschedule(vcpu->cpu);
 
-	kvm_guest_enter();
+	kvm_guest_enter(); // enter guest and switch context between processes
 
 	if (unlikely(vcpu->arch.switch_db_regs)) {
 		set_debugreg(0, 7);
@@ -6031,7 +6031,7 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
 	 */
 	barrier();
 
-	kvm_guest_exit();
+	kvm_guest_exit(); // guest cpu time flush
 
 	preempt_enable();
 
