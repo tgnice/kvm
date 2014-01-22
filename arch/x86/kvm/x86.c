@@ -6000,7 +6000,7 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
 	}
 
 	trace_kvm_entry(vcpu->vcpu_id);
-	kvm_x86_ops->run(vcpu);
+	kvm_x86_ops->run(vcpu); // base line in of guest and out of guest.
 
 	/*
 	 * If the guest has used debug registers, at least dr7
